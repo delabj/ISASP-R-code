@@ -1,0 +1,92 @@
+library(readxl)
+#### Import Data #####
+dfBounds <- read_excel("isasp level bounds.xlsx")
+dfbounds$grade <- as.factor(dfBounds$grade)
+
+
+
+#### Data Prep #####
+
+groupedISASP %>%
+  group_by(school, grade) %>%
+  summarize(meanELA=mean(scaleELA), meanMath=mean(scaleMath), meanSci=mean(scaleScience)) %>%
+  left_join(dfBounds)-> dfScale
+
+
+#### Plotting #####
+
+##ELA BOUNDS BY GRADE
+dfBounds %>% 
+  ggplot(aes())+
+  geom_rect(aes(xmin=grade-.45, xmax=grade+.45, ymin=minELA, ymax=maxELA, fill=levelELA))+
+  coord_flip()+
+  labs(title = "ELA BOUNDRY BY GRADE")+
+  scale_x_continuous(breaks = 3:11,labels=c('3','4','5','6','7','8','9','10','11'))
+
+## MATH BOUNDS BY GRADE
+dfBounds %>% 
+  ggplot(aes())+
+  geom_rect(aes(xmin=grade-.45, xmax=grade+.45, ymin=minMath, ymax=maxMath, fill=levelMath))+
+  coord_flip()+
+  labs(title = "Math BOUNDRY BY GRADE")+
+  scale_x_continuous(breaks = 3:11,labels=c('3','4','5','6','7','8','9','10','11'))
+
+
+
+
+  
+
+
+
+## Plot the school average for the grade Math
+
+schoolVal <- "PLEASANT VIEW ELEMENTARY SCHOOL"
+gradeVal <- 5
+dfScale %>%
+  filter(school==schoolVal) %>%
+  filter(grade==gradeVal) %>%
+  ggplot(aes())+
+  geom_rect(aes(xmin=grade-.55, xmax=grade+.55, ymin=minMath-.5, ymax=maxMath+.5, fill=levelMath))+
+  geom_hline(aes(yintercept=meanMath[1]), size=3)+
+  coord_flip()+
+  theme_PleasVal()+
+  theme(aspect.ratio = .25,legend.position="None")+
+  theme(axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())+
+  scale_fill_manual(values=c(  "#34a853","#ea4335","#fbbc04" ))
+
+
+## Plot the school average for the grade ELA
+
+dfScale %>%
+  filter(school==schoolVal) %>%
+  filter(grade==gradeVal) %>%
+  ggplot(aes())+
+  geom_rect(aes(xmin=grade-.55, xmax=grade+.55, ymin=minELA-.5, ymax=maxELA+.5, fill=levelELA))+
+  geom_hline(aes(yintercept=meanELA[1]), size=3)+
+  coord_flip()+
+  theme_PleasVal()+
+  theme(aspect.ratio = .25,legend.position="None")+
+  theme(axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())+
+  scale_fill_manual(values=c(  "#34a853","#ea4335","#fbbc04" ))
+
+
+## Plot the school average for the grade Science
+
+dfScale %>%
+  filter(school==schoolVal) %>%
+  filter(grade==gradeVal) %>%
+  ggplot(aes())+
+  geom_rect(aes(xmin=grade-.55, xmax=grade+.55, ymin=minELA-.5, ymax=maxScience+.5, fill=levelScience))+
+  geom_hline(aes(yintercept=meanSci[1]), size=3)+
+  coord_flip()+
+  theme_PleasVal()+
+  theme(aspect.ratio = .25,legend.position="None")+
+  theme(axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())+
+  labs(title = toTitleCase(paste0(tolower(schoolVal), " Mean Science Scale Score Grade: ", gradeVal)))+
+  scale_fill_manual(values=c(  "#34a853","#ea4335","#fbbc04" ))
